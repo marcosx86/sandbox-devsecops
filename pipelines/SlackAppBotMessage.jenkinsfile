@@ -39,7 +39,7 @@ node {
 }
 
 def sendSlackMessage(message) {
-    if (!params.skipNotifications && message != null && !"".equals(message.trim()) && channel != null && !"".equals(channel.trim())) {
+    if (!params.skipNotifications && message != null && !"".equals(message.trim())) {
         httpRequest(
             url: params.slackWebhook,
             httpMode: 'POST',
