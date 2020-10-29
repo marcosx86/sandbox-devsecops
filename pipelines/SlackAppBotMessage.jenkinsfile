@@ -24,10 +24,9 @@ node {
             sendSlackMessage("Job '${env.JOB_NAME}' iniciado para o ambiente '${environment}'")
             deleteDir()
 
-            echo 'Parando por 5 segundos...'
-            sh 'sleep 5'
+            echo 'Hello, world.'
 
-            throw new Exception("Erro genérico")
+            //throw new Exception("Erro genérico")
 
             cleanWs()
             sendSlackMessage("Job '${env.JOB_NAME}' finalizado para o ambiente '${environment}'")
