@@ -1,0 +1,43 @@
+
+stage(name: 'Aprovação') {
+    if (params.skipApproval) {
+        sendSlackMessage("Job '${env.JOB_NAME}' -> Ignorada a etapa de aprovação para deploy do projeto!", params.slackChannel)
+        echo 'Ignorada a etapa de aprovação para deploy do projeto!'
+    } else {
+        sendSlackMessage("Job '${env.JOB_NAME}' -> Aguardando aprovação para continuação do deploy do projeto!", params.slackChannel)
+        input 'Aguardando aprovação para continuação do deploy do projeto!'
+    }
+}
+
+node {
+    stage(name: 'builder') {
+        try {
+            sendSlackMessage("Job '${env.JOB_NAME}' iniciado para o ambiente '${environment}'", params.slackChannel)
+            deleteDir()
+
+            echo 'Parando por 5 segundos...'
+            sh 'sleep 5'
+
+            throw new Exception("Erro genérico")
+
+            cleanWs()
+            sendSlackMessage("Job '${env.JOB_NAME}' finalizado para o ambiente '${environment}'", params.slackChannel)
+        } catch (Exception e) {
+            sendSlackMessage("Job '${env.JOB_NAME}' abortado com erro! Verificar em ${env.BUILD_URL}/console", params.slackChannel)
+            throw e
+        }
+    }
+}
+
+def sendSlackMessage(message, channel) {
+    if (!params.skipNotification && message != null && !"".equals(message.trim()) && channel != null && !"".equals(channel.trim())) {
+        httpRequest(
+            url: params.slackWebhook,
+            httpMode: 'POST',
+            contentType: 'APPLICATION_JSON_UTF8',
+            acceptType: 'APPLICATION_JSON_UTF8',
+            requestBody: "{\"text\": \"${message}\"}",
+            quiet: true
+        )
+    }
+}
